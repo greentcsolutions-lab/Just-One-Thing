@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Just One Thing — One decision at a time</title>
+  <meta name="description" content="Stop the mental spiral. Let Just One Thing pick for you." />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Playfair Display', 'Georgia', 'serif'],
+            body: ['DM Sans', 'sans-serif'],
+            mono: ['DM Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body class="dark min-h-screen font-body transition-colors duration-500">
+
+  <!-- Theme Toggle -->
+  <button id="themeToggle" aria-label="Toggle theme"
+    class="fixed top-4 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center theme-toggle-btn transition-all duration-300 hover:scale-110">
+    <span id="themeIcon">🌙</span>
+  </button>
+
+  <!-- Main Layout -->
+  <div class="min-h-screen flex flex-col items-center px-4 py-12 max-w-2xl mx-auto">
+
+    <!-- Header -->
+    <header class="text-center mb-10 animate-fadein">
+      <div class="inline-flex items-center gap-2 pill-badge mb-4">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+        <span class="text-xs tracking-widest uppercase font-mono">Decision Reducer</span>
+      </div>
+      <h1 class="font-display text-4xl sm:text-5xl mb-3 leading-tight">
+        Just <em>One</em> Thing
+      </h1>
+      <p class="text-sm sm:text-base opacity-60 max-w-sm mx-auto leading-relaxed">
+        Too many choices, zero energy. Drop your options in — we pick one. You breathe.
+      </p>
+    </header>
+
+    <!-- Tab Nav -->
+    <nav class="flex gap-1 p-1 rounded-2xl tab-nav mb-8 w-full max-w-sm animate-fadein" style="animation-delay:0.1s">
+      <button class="tab-btn active flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-200" data-tab="spin">
+        🎲 Spin
+      </button>
+      <button class="tab-btn flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-200" data-tab="priority">
+        ✦ Priority
+      </button>
+      <button class="tab-btn flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-200" data-tab="lists">
+        📋 Lists
+      </button>
+    </nav>
+
+    <!-- ─── TAB: SPIN ─── -->
+    <section id="tab-spin" class="tab-panel w-full animate-fadein" style="animation-delay:0.2s">
+
+      <!-- List Selector -->
+      <div class="flex items-center gap-2 mb-4">
+        <label class="text-xs uppercase tracking-widest opacity-50 font-mono">List</label>
+        <select id="spinListSelect" class="flex-1 rounded-xl px-3 py-2 text-sm input-field">
+          <option value="__default">Quick Add (no list)</option>
+        </select>
+      </div>
+
+      <!-- Option Input -->
+      <div class="input-card rounded-2xl p-4 mb-4">
+        <div class="flex gap-2 mb-3">
+          <input id="optionInput" type="text" placeholder="Add an option… (e.g. pasta, go for a walk, email first)"
+            class="flex-1 rounded-xl px-4 py-3 text-sm input-field"
+            maxlength="60" />
+          <button id="addOptionBtn"
+            class="action-btn rounded-xl px-4 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200 hover:scale-105 active:scale-95">
+            + Add
+          </button>
+        </div>
+
+        <!-- Options Chips -->
+        <div id="optionsList" class="flex flex-wrap gap-2 min-h-[2.5rem] items-start">
+          <p id="optionsEmpty" class="text-xs opacity-40 italic pt-1">No options yet — add at least 2 to spin</p>
+        </div>
+      </div>
+
+      <!-- Spin Button -->
+      <button id="spinBtn"
+        class="w-full spin-btn rounded-2xl py-5 text-lg font-display font-bold tracking-wide transition-all duration-300 mb-6 disabled:opacity-40 disabled:cursor-not-allowed"
+        disabled>
+        <span id="spinBtnLabel">✦ Pick For Me</span>
+      </button>
+
+      <!-- Result Card -->
+      <div id="resultCard" class="result-card rounded-2xl p-6 text-center hidden mb-4">
+        <p class="text-xs uppercase tracking-widest opacity-50 font-mono mb-2">Your answer is</p>
+        <p id="resultText" class="font-display text-3xl sm:text-4xl font-bold leading-snug mb-4"></p>
+        <div class="flex gap-2 justify-center flex-wrap">
+          <button id="doneBtn" class="done-btn rounded-xl px-5 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95">
+            ✓ Done!
+          </button>
+          <button id="removeResultBtn" class="remove-btn rounded-xl px-5 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95">
+            ✕ Remove
+          </button>
+          <button id="spinAgainBtn" class="again-btn rounded-xl px-5 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95">
+            ↺ Again
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick presets -->
+      <div class="mt-6">
+        <p class="text-xs uppercase tracking-widest opacity-40 font-mono mb-3">Quick Presets</p>
+        <div class="flex flex-wrap gap-2">
+          <button class="preset-chip" data-preset="meals">🍽 Meal ideas</button>
+          <button class="preset-chip" data-preset="tasks">✅ Work tasks</button>
+          <button class="preset-chip" data-preset="break">☕ Break activity</button>
+          <button class="preset-chip" data-preset="exercise">🏃 Exercise</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TAB: PRIORITY ─── -->
+    <section id="tab-priority" class="tab-panel w-full hidden animate-fadein">
+
+      <div class="input-card rounded-2xl p-4 mb-4">
+        <p class="text-xs uppercase tracking-widest opacity-50 font-mono mb-3">Today's Focus — max 5</p>
+        <div class="flex gap-2 mb-3">
+          <input id="priorityInput" type="text" placeholder="What needs to get done today?"
+            class="flex-1 rounded-xl px-4 py-3 text-sm input-field"
+            maxlength="80" />
+          <button id="addPriorityBtn"
+            class="action-btn rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95">
+            + Add
+          </button>
+        </div>
+      </div>
+
+      <!-- Priority List -->
+      <div id="priorityList" class="space-y-2 mb-6">
+        <div id="priorityEmpty" class="input-card rounded-2xl p-8 text-center">
+          <p class="text-3xl mb-2">🌱</p>
+          <p class="text-sm opacity-50">Nothing yet. Add your top tasks for today.</p>
+          <p class="text-xs opacity-30 mt-1">Focus on 3–5 things max.</p>
+        </div>
+      </div>
+
+      <!-- Pick Top Priority -->
+      <button id="pickTopBtn"
+        class="w-full spin-btn rounded-2xl py-4 text-base font-display font-bold tracking-wide transition-all duration-300 hidden">
+        ✦ Surface My #1 Priority
+      </button>
+
+      <!-- Top Priority Result -->
+      <div id="topPriorityCard" class="result-card rounded-2xl p-6 text-center hidden mt-4">
+        <p class="text-xs uppercase tracking-widest opacity-50 font-mono mb-2">Right now, focus on</p>
+        <p id="topPriorityText" class="font-display text-2xl sm:text-3xl font-bold leading-snug mb-1"></p>
+        <p class="text-xs opacity-40 mb-4">Everything else can wait.</p>
+        <button id="topDoneBtn" class="done-btn rounded-xl px-5 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95">
+          ✓ Done!
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div id="progressWrap" class="mt-6 hidden">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-mono opacity-50">Today's progress</span>
+          <span id="progressLabel" class="text-xs font-mono opacity-70"></span>
+        </div>
+        <div class="progress-track rounded-full h-2">
+          <div id="progressBar" class="progress-fill rounded-full h-2 transition-all duration-500"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ─── TAB: LISTS ─── -->
+    <section id="tab-lists" class="tab-panel w-full hidden animate-fadein">
+
+      <div class="input-card rounded-2xl p-4 mb-4">
+        <p class="text-xs uppercase tracking-widest opacity-50 font-mono mb-3">Saved Option Lists</p>
+        <div class="flex gap-2">
+          <input id="newListInput" type="text" placeholder="New list name… (e.g. Dinner ideas)"
+            class="flex-1 rounded-xl px-4 py-3 text-sm input-field"
+            maxlength="40" />
+          <button id="createListBtn"
+            class="action-btn rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95">
+            Create
+          </button>
+        </div>
+      </div>
+
+      <div id="savedLists" class="space-y-3">
+        <div id="listsEmpty" class="input-card rounded-2xl p-8 text-center">
+          <p class="text-3xl mb-2">📂</p>
+          <p class="text-sm opacity-50">No lists yet. Create one to reuse your options anytime.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-16 text-center opacity-30 text-xs font-mono">
+      <p>Just One Thing — clarity, one pick at a time</p>
+    </footer>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast fixed bottom-6 left-1/2 -translate-x-1/2 rounded-2xl px-5 py-3 text-sm font-medium hidden z-50 pointer-events-none">
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
